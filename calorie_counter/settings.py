@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -50,6 +51,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'calorie_counter.urls'
+
+AUTH_USER_MODEL = 'api.CustomUser'
 
 TEMPLATES = [
     {
@@ -73,10 +76,21 @@ WSGI_APPLICATION = 'calorie_counter.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'calorie-db',
+        'USER': 'postgres',
+        'PASSWORD': 'vivek',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
