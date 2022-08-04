@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework_simplejwt',
     'api',
 ]
 
@@ -53,6 +55,16 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'calorie_counter.urls'
 
 AUTH_USER_MODEL = 'api.CustomUser'
+
+
+REST_FRAMEWORK = {
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+
+}
 
 TEMPLATES = [
     {
