@@ -12,6 +12,7 @@ urlpatterns = [
 
     path('signUpApi/',SignUp.as_view()),
     path('foodListApi/',FoodList.as_view()),
+    path('activityListApi/',ActivityList.as_view()),
 
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

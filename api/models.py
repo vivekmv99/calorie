@@ -135,4 +135,10 @@ class Activitie(models.Model):
     def __str__(self):
         return self.name
 
+class TimeSpend(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    activity = models.ForeignKey(Activitie, related_name='exercise', on_delete=models.CASCADE)
+    time = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 

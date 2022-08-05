@@ -123,8 +123,8 @@ class SignUp(APIView):
 #user
 class FoodList(APIView):
     permission_classes = [IsAuthenticated]
-    def get(self):
-        food_list = FoodItem.objects.filter(is_global=False, is_user=False)
+    def get(self,request):
+        food_list = FoodItem.objects.filter(is_global=True)
         food_serializer = AddFoodSerializer(food_list, many=True)
         return Response({"status": True, "item_list": food_serializer.data})
 
@@ -136,7 +136,42 @@ class FoodList(APIView):
             food_id,consumed=None,None
         decoded = token_decode(request)
         if food_id and consumed :
-            FoodConsumed(food_id=food_id,amount=consumed,user_id=decoded['user_id']).save()
-            return Response({'status': True, 'message': "Added successfully"})
+            try:
+                food = FoodItem.objects.get(id=food_id)
+            except:
+                food = None
+            if food:
+                FoodConsumed(food_id=food_id,amount=consumed,user_id=decoded['user_id']).save()
+                return Response({'status': True, 'message': "Added successfully"})
+            else:
+                return Response({"status": False, "message": "No activity found"})
+        else:
+            return Response({"status": False, "message": "something went wrong"})
+
+
+class ActivityList(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        activity_list = Activitie.objects.filter(is_global=True)
+        activity_serializer = AddActivitySerializer(activity_list, many=True)
+        return Response({"status": True, "item_list": activity_serializer.data})
+
+    def post(self,request):
+        try:
+            activity_id = request.data['activity_id']
+            spend = request.data['spend']
+        except:
+            activity_id,spend=None,None
+        decoded = token_decode(request)
+        if activity_id and spend :
+            try:
+                act = Activitie.objects.get(id=activity_id)
+            except:
+                act = None
+            if act:
+                TimeSpend(activity_id=activity_id,time=spend,user_id=decoded['user_id']).save()
+                return Response({'status': True, 'message': "Added successfully"})
+            else:
+                return Response({"status": False, "message": "No activity found"})
         else:
             return Response({"status": False, "message": "something went wrong"})
