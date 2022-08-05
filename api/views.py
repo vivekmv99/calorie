@@ -36,12 +36,11 @@ class AddFoodItems(APIView):
         if not serializer.is_valid():
             return Response({'status': False, 'message': serializer.errors})
         item = serializer.save()
+        item.user = CustomUser.objects.get(id=decoded['user_id'])
         if decoded['is_admin'] == True:
-            item.user = decoded['user_id']
             item.is_user = True
             item.is_global = True
         else:
-            item.user = CustomUser.objects.get(id=decoded['user_id'])
             item.is_user = False
             item.is_global = False
         item.save()
@@ -58,9 +57,50 @@ class AddFoodItems(APIView):
 
 
     def patch(self,request):
+        decoded = token_decode(request)
+        if decoded['is_admin'] != True:
+            return Response({"status": False, "message": "No access!!"})
         if item_id := request.data['item_id']:
             FoodItem.objects.filter(id=item_id).update(is_global=True)
         return Response({"status":True,"message":"Item is Added to global list"})
+
+
+
+class AddActivity(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        decoded = token_decode(request)
+        serializer = AddActivitySerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({'status': False, 'message': serializer.errors})
+        activity = serializer.save()
+        activity.user = CustomUser.objects.get(id=decoded['user_id'])
+        if decoded['is_admin'] == True:
+            activity.is_user = True
+            activity.is_global = True
+        else:
+            activity.is_user = False
+            activity.is_global = False
+        activity.save()
+        return Response({"status": True, "message": "Food Item is added successfully"})
+
+    # requested
+    def get(self, request):
+        decoded = token_decode(request)
+        if decoded['is_admin'] != True:
+            return Response({"status": False, "message": "No access!!"})
+        activity_list = Activitie.objects.filter(is_global=False, is_user=False)
+        activity_serializer = AdminActivitySerializer(activity_list, many=True)
+        return Response({"status": True, "activty_list": activity_serializer.data})
+
+    def patch(self, request):
+        decoded = token_decode(request)
+        if decoded['is_admin'] != True:
+            return Response({"status": False, "message": "No access!!"})
+        if activity_id := request.data['activity_id']:
+            Activitie.objects.filter(id=activity_id).update(is_global=True)
+        return Response({"status": True, "message": "Activity is Added to global list"})
 
 
 class SignUp(APIView):

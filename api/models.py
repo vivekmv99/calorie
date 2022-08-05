@@ -119,3 +119,15 @@ class FoodItem(models.Model):
         return self.name
 
 
+class Activitie(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(max_length=100)
+    time = models.PositiveIntegerField(default=1)#hours
+    burnout = models.IntegerField(default=0)
+    is_user = models.BooleanField(default=False)#False if customer and True if added by admin
+    is_global = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+

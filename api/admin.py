@@ -4,3 +4,4 @@ from .models import *
 
 admin.site.register(CustomUser)
 admin.site.register(FoodItem)
+admin.site.register(Activitie)

@@ -27,3 +27,14 @@ class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('email','password','name','phone')
+
+
+class AddActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Activitie
+        fields = ('name','time','burnout')
+
+class AdminActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FoodItem
+        fields = "__all__"
