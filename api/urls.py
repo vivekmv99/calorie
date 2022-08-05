@@ -14,5 +14,7 @@ urlpatterns = [
     path('foodListApi/',FoodList.as_view()),
     path('activityListApi/',ActivityList.as_view()),
 
+    path('statsListApi/',StatsList.as_view()),
+
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

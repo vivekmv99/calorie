@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from .helper import *
 from django.contrib.auth.hashers import make_password
-
+from datetime import date
 class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -175,3 +175,54 @@ class ActivityList(APIView):
                 return Response({"status": False, "message": "No activity found"})
         else:
             return Response({"status": False, "message": "something went wrong"})
+
+
+
+
+class StatsList(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self,request):
+        try:
+            start_date = request.data['start_date']
+            end_date = request.data['end_date']
+
+            todayz = request.data['today']
+        except:
+            start_date,end_date,todayz=None,None,None
+        decoded = token_decode(request)
+        if todayz == "True":
+            today = date.today()
+            stats,consumed_list,activity_list = [],[],[]
+            consumed = FoodConsumed.objects.filter(user=decoded['user_id'], created_at__year=today.year,
+                                                   created_at__month=today.month, created_at__day=today.day)
+            activity = TimeSpend.objects.filter(user=decoded['user_id'], created_at__year=today.year,
+                                                   created_at__month=today.month, created_at__day=today.day)
+            for i in consumed:
+                gain = i.food.calorie * i.amount
+                val = {
+                    'Food You Consumed':i.food.name,
+                    'Consumed Amount':i.amount,
+                    'This food Contains':f"{i.food.carbohydrate} :carbohydrate,{i.food.fats} : fat,{i.food.protein} : protein,{i.food.calorie}:calorie",
+                    'You Gained': f"{gain}:calorie"
+                }
+                consumed_list.append(val)
+            for i in activity:
+                burn = i.time * i.activity.burnout
+                val_two = {
+                    'Activity you have done':i.activity.name,
+                    'Time spend':f"{i.time}hrs",
+                    'This workout burned':f"{burn}calorie"
+                }
+                activity_list.append(val_two)
+            stats = {
+                'consumed':consumed_list,
+                'activity':activity_list
+            }
+            return Response({'status': True, 'message': "","consumed":stats})
+        elif start_date and end_date:
+            print(start_date,end_date)
+        else:
+            return Response({'status': False,"message":"something wrong"})
+
+
+
