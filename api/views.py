@@ -9,7 +9,7 @@ from .serializers import *
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from .helper import *
-
+from django.contrib.auth.hashers import make_password
 
 class LoginView(APIView):
     def post(self, request):
@@ -51,7 +51,7 @@ class AddFoodItems(APIView):
     def get(self, request):
         decoded = token_decode(request)
         if decoded['is_admin'] != True:
-            return Response({"status": False})
+            return Response({"status": False,"message": "No access!!"})
         food_list = FoodItem.objects.filter(is_global=False,is_user=False)
         food_serializer = AdminFoodSerializer(food_list, many=True)
         return Response({"status": True,"item_list":food_serializer.data})
@@ -63,6 +63,18 @@ class AddFoodItems(APIView):
         return Response({"status":True,"message":"Item is Added to global list"})
 
 
-# class SignUpApi(APIView):
-#     def post(self,request):
-#         return Response({'status':True})
+class SignUp(APIView):
+    def post(self,request):
+        serializer = SignUpSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({'status': False, 'message': serializer.errors})
+        user = serializer.save()
+        user.customer = True
+        user.password = make_password(serializer.data['password'])
+        user.save()
+        refresh = RefreshToken.for_user(user)
+        refresh['email'] = user.email
+        refresh['is_admin'] = user.is_admin
+        return Response({"status": True, 'refresh': str(refresh),
+                         'access': str(refresh.access_token), 'message': "successfully Signed in"})
+

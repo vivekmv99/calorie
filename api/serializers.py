@@ -16,3 +16,14 @@ class AdminFoodSerializer(serializers.ModelSerializer):
     class Meta:
         model = FoodItem
         fields = "__all__"
+
+def required(value):
+    if value is None:
+        raise serializers.ValidationError('This field is required')
+class SignUpSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(validators=[required])
+    phone = serializers.CharField(validators=[required])
+    password = serializers.CharField(validators=[required])
+    class Meta:
+        model = CustomUser
+        fields = ('email','password','name','phone')
