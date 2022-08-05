@@ -104,3 +104,18 @@ class CustomUser(AbstractBaseUser):
         "Is the user a admin member?"
         return self.admin
 
+
+class FoodItem(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(max_length=100)
+    carbohydrate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    fats = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    protein = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    calorie = models.DecimalField(max_digits=5, decimal_places=2, default=0, blank=True)
+    is_user = models.BooleanField(default=False)#False if customer and True if added by admin
+    is_global = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+

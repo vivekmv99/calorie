@@ -8,6 +8,8 @@ from . permissions import CustomPermission
 from .serializers import *
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
+from .helper import *
+
 
 class LoginView(APIView):
     def post(self, request):
@@ -24,3 +26,43 @@ class LoginView(APIView):
                          'access': str(refresh.access_token),'message':"successfully logged in"})
         else:
             return Response({"status":False,'message':'wrong email or password'})
+
+
+class AddFoodItems(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        decoded = token_decode(request)
+        serializer = AddFoodSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({'status': False, 'message': serializer.errors})
+        item = serializer.save()
+        if decoded['is_admin'] == True:
+            item.user = decoded['user_id']
+            item.is_user = True
+            item.is_global = True
+        else:
+            item.user = CustomUser.objects.get(id=decoded['user_id'])
+            item.is_user = False
+            item.is_global = False
+        item.save()
+        return Response({"status":True,"message":"Food Item is added successfully"})
+
+    #requested
+    def get(self, request):
+        decoded = token_decode(request)
+        if decoded['is_admin'] != True:
+            return Response({"status": False})
+        food_list = FoodItem.objects.filter(is_global=False,is_user=False)
+        food_serializer = AdminFoodSerializer(food_list, many=True)
+        return Response({"status": True,"item_list":food_serializer.data})
+
+
+    def patch(self,request):
+        if item_id := request.data['item_id']:
+            FoodItem.objects.filter(id=item_id).update(is_global=True)
+        return Response({"status":True,"message":"Item is Added to global list"})
+
+
+# class SignUpApi(APIView):
+#     def post(self,request):
+#         return Response({'status':True})
